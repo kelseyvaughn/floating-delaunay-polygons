@@ -1,22 +1,24 @@
 {
-  "name": "delaunay-trails",
+  "name": "floating-delaunay-polygons",
   "version": "0.1.0",
-  "description": "animates shooting polygons made of delaunay triangles",
-  "main": "lib/delaunay-trails.js",
+  "description": "animates floating polygons made of delaunay triangles",
+  "main": "lib/floating-delaunay-polygons.js",
   "scripts": {
     "compile": "babel src/ -d lib/ --presets=es2015",
     "prepublish": "npm run compile"
   },
   "keywords": [
     "delaunay",
-    "trails",
-    "triangles"
+    "polygons",
+    "triangles",
+    "floating",
+    "animation"
   ],
   "author": "Kelsey Motley <kelsey@shecodesthese.com>",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/kelseyvaughn/delaunay-trails"
+    "url": "https://github.com/kelseyvaughn/floating-delaunay-polygons"
   },
   "peerDependencies": {
     "paper": "^0.10.2"
