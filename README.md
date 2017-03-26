@@ -1,7 +1,7 @@
-#Floating Delaunay Polygons
+# Floating Delaunay Polygons
 
 ----
->Floating Polygon Animation.
+> Floating Polygon Animation.
 
 **Install**
 
