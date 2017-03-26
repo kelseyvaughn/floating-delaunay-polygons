@@ -1,28 +1,29 @@
-#Delaunay Brush
+#Floating Delaunay Polygons
 
 ----
->Paints delaunay traingles on mouse move.
+>Floating Polygon Animation.
 
 **Install**
 
 >
 
-    npm install delaunay-brush
+    npm install floating-delaunay-polygons
 
 **Usage**
 
 >
+    import FloatingDelaunayPolygons from 'floating-delaunay-polygons';
 
     // canvas element required
     var canvas = document.getElementById("my_canvas");
 
-    // optional stroke color
-    var stroke_color = "#d16a99";
+    // optional colors (defaults to balack and gray)
+    var colors = ['#cc79ad', '#b7e4fb', '#d3fbea', '#e7a789'];
 
-    // optional stroke thickness (in pixels)
-    var stroke_thickness = 250;
+    // optional size (in pixels - default is 250 px)
+    var size = 250;
 
-    var delaunayBrush = new DelaunayBrush(canvas, stroke_color, stroke_thickness);
+    var floatingDelaunayPolygons = new FloatingDelaunayPolygons(canvas, colors, size);
 
 **Add an Optional Background Image**
 
@@ -33,5 +34,5 @@
     // optional callback for loaded event
     var onLoadedCallback = function(){ doSomething(); };
 
-    delaunayBrush.loadBgImage(src, onLoadedCallback);
+    floatingDelaunayPolygons.loadBgImage(src, onLoadedCallback);
 
