@@ -2,14 +2,14 @@ import DelaunayTriangulate from "delaunay-triangulate";
 
 /* ------------------------------
 
-	Delaunay Brush
+	Floating Delaunay Polygons
 
-	paints delaunay traingles as you
-	move the mouse
+	animation loop of floating polygons
+	made of delaunay triangles
 
 ---------------------------------- */
 
-class DelaunayBrush{
+class FloatingDelaunayPolygons{
 
 	//--------------------------------- declareConstants
 	declareConstants(){
@@ -24,7 +24,8 @@ class DelaunayBrush{
 	initVars(){
 		// the index of the current image
 		// (so that we can add multiple images
-		// and swap them out on some user input)
+		// and swap them out on some user input
+		// if desired in the future)
 		this.cur_image_ind 				= -1;
 		// the pool that holds the polygons
 		this.polygon_pool 				= [];
@@ -35,7 +36,7 @@ class DelaunayBrush{
 	// a string representing the images or the image
 	//--------------------------------- constructor
 	constructor(stage_element, colors, size){
-		// if no colors ---> use black & white
+		// if no colors ---> use black & grays as default
 		this.colors = colors || ['#000000', '#dddddd', '#888888'];
 		//set default thickness to 125
 		this.size = size || 250;
@@ -89,8 +90,6 @@ class DelaunayBrush{
 	//--------------------------------- onFrame
 	onFrame(event){
 		var time = new Date().getTime();
-
-
 
 		if( !this.last_generate_polygon_time ||
 			(time - this.last_generate_polygon_time) >= this.CREATE_POLYGON_DELAY ) {
@@ -280,17 +279,11 @@ class DelaunayBrush{
 
 	//--------------------------------- easeOutExpo
 	easeOutExpo (t, b, c, d) {
-		var delta;
-		//var is_neg = c < 0;
-		//c = Math.abs(c);
 		// c is the change in value (total delta)
 		// t is the current time
 		// d is the duration
 		// and b is the starting pt
-		// equation will give you current delta
-		delta = (t==d) ? b+c : c * (-Math.pow(2, -10 * t/d) + 1) + b;
-
-		return delta;
+		return (t==d) ? b+c : c * (-Math.pow(2, -10 * t/d) + 1) + b;
 	}
 
 	//--------------------------------- resetPolygon
@@ -318,5 +311,5 @@ class DelaunayBrush{
 
 }
 
-export default DelaunayBrush;
+export default FloatingDelaunayPolygons;
 
