@@ -18,7 +18,7 @@
     var canvas = document.getElementById("my_canvas");
 
     // optional colors (defaults to balack and gray)
-    var colors = ['#cc79ad', '#b7e4fb', '#d3fbea', '#e7a789'];
+    var colors = ['#000000', '#dddddd', '#888888'];
 
     // optional size (in pixels - default is 250 px)
     var size = 250;

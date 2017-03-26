@@ -1,6 +1,6 @@
 {
   "name": "floating-delaunay-polygons",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "animates floating polygons made of delaunay triangles",
   "main": "lib/floating-delaunay-polygons.js",
   "scripts": {
