@@ -329,7 +329,7 @@ class FloatingDelaunayPolygons{
 	//--------------------------------- reset
     reset(){
         var self = this;
-        this.raster.onLoad = null;
+        if(this.raster) this.raster.onLoad = null;
         paper.project.activeLayer.removeChildren();
 
         this.initVars();
