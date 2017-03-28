@@ -18,6 +18,8 @@ class FloatingDelaunayPolygons{
 		this.MIN_MOUSE_DELTA 			= 10;
 		this.POLYGON_X_DELTA 			= 100;
 		this.CREATE_POLYGON_DELAY 		= 300;
+		this.DEFAULT_SIZE 				= 250;
+		this.DEFAULT_COLORS  			= ['#000000', '#dddddd', '#888888'];
 	}
 
 	//--------------------------------- initVars
@@ -36,20 +38,26 @@ class FloatingDelaunayPolygons{
 	// a string representing the images or the image
 	//--------------------------------- constructor
 	constructor(stage_element, colors, size){
-		// if no colors ---> use black & grays as default
-		this.colors = colors || ['#000000', '#dddddd', '#888888'];
-		//set default thickness to 125
-		this.size = size || 250;
-
 		this.declareConstants();
+		
+		// if no colors ---> use black & grays as default
+		this.colors = colors || this.DEFAULT_COLORS;
+
+		this.size = size || this.DEFAULT_SIZE;
+
 		this.initVars();
 
 		this.stage_element = stage_element;
 		if(this.stage_element) paper.setup(this.stage_element);
 
-		paper.view.onResize = this.onResize.bind(this);
-		paper.view.onFrame = this.onFrame.bind(this);
+		this.onResize();
 
+		paper.view.onResize = this.onResize.bind(this);
+	}
+
+	//--------------------------------- start 
+	start(){
+		paper.view.onFrame = this.onFrame.bind(this);	
 	}
 
 	//--------------------------------- loadBgImage 
@@ -84,7 +92,19 @@ class FloatingDelaunayPolygons{
 
 	//--------------------------------- onResize
 	onResize(event){
-		this.raster.fitBounds(paper.view.bounds, true);
+		if(this.raster) this.raster.fitBounds(paper.view.bounds, true);
+
+		if( typeof this.size == "string" && this.size.indexOf("%") > -1 ) 
+			this.size_in_px = (parseInt( this.size.replace("%", "") )/100) * paper.view.bounds.width;
+
+		else if( typeof this.size == "string" && this.size.indexOf("px") > -1 ) 
+			this.size_in_px = parseInt(this.size);
+
+		else if( typeof this.size == "number" ) 
+			this.size_in_px = this.size;
+		
+		else 
+			this.size_in_px = this.DEFAULT_SIZE;
 	}
 
 	//--------------------------------- onFrame
@@ -116,7 +136,7 @@ class FloatingDelaunayPolygons{
 		//detremine start & end pts
 		var end_pt = {
 			x: polygon.bounds.x + (-this.POLYGON_X_DELTA + Math.round(Math.random()*this.POLYGON_X_DELTA*2)),
-			y: -this.size - Math.round(Math.random()*this.size/2)
+			y: -this.size_in_px - Math.round(Math.random()*this.size_in_px/2)
 		};
 		var start_pt = {
 			x: polygon.bounds.x, 
@@ -148,7 +168,7 @@ class FloatingDelaunayPolygons{
 		//create polygon at psuedorandom 
 		//point below the fold 
 		var x = Math.round(Math.random()*paper.view.bounds.width);
-		var y = paper.view.bounds.height + (this.size + Math.random()*this.size);  
+		var y = paper.view.bounds.height + (this.size_in_px + Math.random()*this.size_in_px);  
 		
 		return this.createPolygonAroundPoint(x, y);
 	}
@@ -167,15 +187,21 @@ class FloatingDelaunayPolygons{
 		var pt_x, pt_y;
 		var pts = [];
 
+		var size = this.size_in_px;
+		var rand = Math.random();
+		//create a few smaller ones
+		if(rand < 0.3) size = 80 + Math.random()*(this.size_in_px-80);
+
 		// now generate random points
 		// within the MOUSE_POINT_RADIUS
 		for(var i=0; i<this.NUM_RANDOM_PTS; i++){
+
 			//create random x and y points
 			// pt_x = Math.round
-			pt_x = (x-this.size) + 
-					Math.round(Math.random()*(this.size));
-			pt_y = (y-this.size) + 
-					Math.round(Math.random()*(this.size));
+			pt_x = (x-size) + 
+					Math.round(Math.random()*(size));
+			pt_y = (y-size) + 
+					Math.round(Math.random()*(size));
 
 			pts.push([pt_x, pt_y]);
 		}
@@ -266,7 +292,7 @@ class FloatingDelaunayPolygons{
 			polygon_info.polygon.position = new paper.Point(to_x,to_y);
 			polygon_info.polygon.rotate(1);			
 
-			// if this polygon has finshed it's
+			// if this polygon has finshed its
 			// animation remove it from the array
 			// reset it and add it to the polygon_pool
 			if(time > polygon_info.duration) {
@@ -291,7 +317,7 @@ class FloatingDelaunayPolygons{
     	//move back down under the fold
     	var polygon = polygon_info.polygon;
     	var x = Math.round(Math.random()*paper.view.bounds.width);
-		var y = paper.view.bounds.height + (this.size + Math.random()*this.size); 
+		var y = paper.view.bounds.height + (this.size_in_px + Math.random()*this.size_in_px); 
 
     	polygon.position = new paper.Point(x, y);
 
@@ -307,6 +333,10 @@ class FloatingDelaunayPolygons{
 
         this.initVars();
         this.loadNextImage();
+    }
+    //--------------------------------- clear
+    clear(){
+    	this.reset();
     }
 
 }

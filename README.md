@@ -12,6 +12,7 @@
 **Usage**
 
 >
+
     import FloatingDelaunayPolygons from 'floating-delaunay-polygons';
 
     // canvas element required
@@ -20,10 +21,19 @@
     // optional colors (defaults to balack and gray)
     var colors = ['#000000', '#dddddd', '#888888'];
 
-    // optional size (in pixels - default is 250 px)
+    // optional size of polygons (can be int or string such as '250px' or '20%')
     var size = 250;
 
     var floatingDelaunayPolygons = new FloatingDelaunayPolygons(canvas, colors, size);
+
+
+**Start the Animation**
+
+>
+
+    //start the animation
+    floatingDelaunayPolygons.start();
+
 
 **Add an Optional Background Image**
 
@@ -35,4 +45,12 @@
     var onLoadedCallback = function(){ doSomething(); };
 
     floatingDelaunayPolygons.loadBgImage(src, onLoadedCallback);
+
+
+**Clear All**
+
+>
+
+    floatingDelaunayPolygons.clear();
+
 
