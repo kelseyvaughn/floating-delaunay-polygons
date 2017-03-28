@@ -75,7 +75,7 @@ class FloatingDelaunayPolygons{
 	//--------------------------------- loadNextImage
 	loadNextImage(){
 		//ignore if no images
-		if(this.images.length == 0) return;
+		if(!this.images || this.images.length == 0) return;
 
 		this.cur_image_ind++;
 		if(this.cur_image_ind >= this.images.length) this.cur_image_ind = 0;
