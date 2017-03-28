@@ -49,16 +49,17 @@ class FloatingDelaunayPolygons{
 		this.initVars();
 
 		this.stage_element = stage_element;
-		if(this.stage_element) paper.setup(this.stage_element);
+		this.paperScope = new paper.PaperScope();
+		if(this.stage_element) this.paperScope.setup(this.stage_element);
 
 		this.onResize();
 
-		paper.view.onResize = this.onResize.bind(this);
+		this.paperScope.view.onResize = this.onResize.bind(this);
 	}
 
 	//--------------------------------- start 
 	start(){
-		paper.view.onFrame = this.onFrame.bind(this);	
+		this.paperScope.view.onFrame = this.onFrame.bind(this);	
 	}
 
 	//--------------------------------- loadBgImage 
@@ -84,7 +85,7 @@ class FloatingDelaunayPolygons{
 
 	//--------------------------------- loadImageByIndex
 	loadImageByIndex(ind){
-		this.raster = new paper.Raster(this.images[ind]);
+		this.raster = new this.paperScope.Raster(this.images[ind]);
 		this.raster.on("load", this.onImageLoaded.bind(this));
 	}
 
@@ -96,10 +97,10 @@ class FloatingDelaunayPolygons{
 
 	//--------------------------------- onResize
 	onResize(event){
-		if(this.raster) this.raster.fitBounds(paper.view.bounds, true);
+		if(this.raster) this.raster.fitBounds(this.paperScope.view.bounds, true);
 
 		if( typeof this.size == "string" && this.size.indexOf("%") > -1 ) 
-			this.size_in_px = (parseInt( this.size.replace("%", "") )/100) * paper.view.bounds.width;
+			this.size_in_px = (parseInt( this.size.replace("%", "") )/100) * this.paperScope.view.bounds.width;
 
 		else if( typeof this.size == "string" && this.size.indexOf("px") > -1 ) 
 			this.size_in_px = parseInt(this.size);
@@ -171,8 +172,8 @@ class FloatingDelaunayPolygons{
 	createPolygon(){
 		//create polygon at psuedorandom 
 		//point below the fold 
-		var x = Math.round(Math.random()*paper.view.bounds.width);
-		var y = paper.view.bounds.height + (this.size_in_px + Math.random()*this.size_in_px);  
+		var x = Math.round(Math.random()*this.paperScope.view.bounds.width);
+		var y = this.paperScope.view.bounds.height + (this.size_in_px + Math.random()*this.size_in_px);  
 		
 		return this.createPolygonAroundPoint(x, y);
 	}
@@ -229,7 +230,7 @@ class FloatingDelaunayPolygons{
 
 		//now we want to group the trainagles
 		//b/c we will be animating the group
-		var group = new paper.Group(triangles_paths);
+		var group = new this.paperScope.Group(triangles_paths);
 
 		return group;
 	}
@@ -246,10 +247,10 @@ class FloatingDelaunayPolygons{
 		// points to a Path
 		for(var i=0;i<triangles.length;i++){
 			//random color from list of colors
-			var path = new paper.Path();
-			path.add(new paper.Point(pts[triangles[i][0]][0], pts[triangles[i][0]][1]));
-			path.add(new paper.Point(pts[triangles[i][1]][0], pts[triangles[i][1]][1]));
-			path.add(new paper.Point(pts[triangles[i][2]][0], pts[triangles[i][2]][1]));
+			var path = new this.paperScope.Path();
+			path.add(new this.paperScope.Point(pts[triangles[i][0]][0], pts[triangles[i][0]][1]));
+			path.add(new this.paperScope.Point(pts[triangles[i][1]][0], pts[triangles[i][1]][1]));
+			path.add(new this.paperScope.Point(pts[triangles[i][2]][0], pts[triangles[i][2]][1]));
 			path.closed = true;
 			path.strokeColor = color;
 			path.fillColor = color;
@@ -293,7 +294,7 @@ class FloatingDelaunayPolygons{
 			// can attempt translate to see 
 			// if less expensive
 			// set current values for x & y
-			polygon_info.polygon.position = new paper.Point(to_x,to_y);
+			polygon_info.polygon.position = new this.paperScope.Point(to_x,to_y);
 			polygon_info.polygon.rotate(1);			
 
 			// if this polygon has finshed its
@@ -320,10 +321,10 @@ class FloatingDelaunayPolygons{
     resetPolygon(polygon_info){
     	//move back down under the fold
     	var polygon = polygon_info.polygon;
-    	var x = Math.round(Math.random()*paper.view.bounds.width);
-		var y = paper.view.bounds.height + (this.size_in_px + Math.random()*this.size_in_px); 
+    	var x = Math.round(Math.random()*this.paperScope.view.bounds.width);
+		var y = this.paperScope.view.bounds.height + (this.size_in_px + Math.random()*this.size_in_px); 
 
-    	polygon.position = new paper.Point(x, y);
+    	polygon.position = new this.paperScope.Point(x, y);
 
     	//push into the polygon_pool
     	this.polygon_pool.push(polygon);
@@ -333,7 +334,7 @@ class FloatingDelaunayPolygons{
     reset(){
         var self = this;
         if(this.raster) this.raster.onLoad = null;
-        paper.project.activeLayer.removeChildren();
+        this.paperScope.project.activeLayer.removeChildren();
 
         this.initVars();
         this.loadNextImage();
