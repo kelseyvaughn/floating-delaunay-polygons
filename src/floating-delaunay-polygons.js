@@ -14,13 +14,14 @@ class FloatingDelaunayPolygons{
 
 	//--------------------------------- declareConstants
 	declareConstants(){
-		this.POLYGON_POOL_SIZE 			= 50;
-		this.NUM_RANDOM_PTS 			= 12;
-		this.MIN_MOUSE_DELTA 			= 10;
-		this.POLYGON_X_DELTA 			= 100;
-		this.CREATE_POLYGON_DELAY 		= 300;
-		this.DEFAULT_SIZE 				= 250;
-		this.DEFAULT_COLORS  			= ['#000000', '#dddddd', '#888888'];
+		this.POLYGON_POOL_SIZE 				= 50;
+		this.NUM_RANDOM_PTS 				= 12;
+		this.MIN_MOUSE_DELTA 				= 10;
+		this.POLYGON_X_DELTA 				= 100;
+		this.CREATE_POLYGON_DELAY 			= 300;
+		this.CREATE_POLYGON_DELAY_MOBILE 	= 1600;
+		this.DEFAULT_SIZE 					= 250;
+		this.DEFAULT_COLORS  				= ['#000000', '#dddddd', '#888888'];
 	}
 
 	//--------------------------------- initVars
@@ -33,6 +34,8 @@ class FloatingDelaunayPolygons{
 		// the pool that holds the polygons
 		this.polygon_pool 				= [];
 		this.animating_polygons 		= [];
+		this.is_mobile  				= ( /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i
+                           					.test(navigator.userAgent.toLowerCase()) );
 	}
 
 	// params can be an array of strings or 
@@ -50,6 +53,9 @@ class FloatingDelaunayPolygons{
 
 		this.stage_element = stage_element;
 		this.paperScope = new paper.PaperScope();
+		//need to activate to work ensure we 
+		//are working within the proper scope 
+		this.paperScope.activate();
 		if(this.stage_element) this.paperScope.setup(this.stage_element);
 
 		this.onResize();
@@ -59,7 +65,19 @@ class FloatingDelaunayPolygons{
 
 	//--------------------------------- start 
 	start(){
+		//need to activate to work ensure we 
+        //are working within the proper scope 
+        this.paperScope.activate();
+
+		this.paperScope.view.onResize = this.onResize.bind(this);
 		this.paperScope.view.onFrame = this.onFrame.bind(this);	
+
+		this.onResize();
+	}
+
+	//--------------------------------- pause 
+	pause(){
+		this.paperScope.view.onFrame = null;
 	}
 
 	//--------------------------------- loadBgImage 
@@ -85,19 +103,23 @@ class FloatingDelaunayPolygons{
 
 	//--------------------------------- loadImageByIndex
 	loadImageByIndex(ind){
+		this.paperScope.activate();
 		this.raster = new this.paperScope.Raster(this.images[ind]);
-		this.raster.on("load", this.onImageLoaded.bind(this));
+		this.raster.visible = false;
+		this.raster.onLoad = this.onImageLoaded.bind(this);
 	}
 
 	//--------------------------------- onImageLoaded
 	onImageLoaded(){
-		if(this.onLoad) this.onLoad();
+		if(this.onLoaded) this.onLoaded();
 		this.onResize();
+		this.raster.visible = true;
 	}
 
 	//--------------------------------- onResize
 	onResize(event){
-		if(this.raster) this.raster.fitBounds(this.paperScope.view.bounds, true);
+		if(this.raster) 
+			this.raster.fitBounds(this.paperScope.view.bounds, true);
 
 		if( typeof this.size == "string" && this.size.indexOf("%") > -1 ) 
 			this.size_in_px = (parseInt( this.size.replace("%", "") )/100) * this.paperScope.view.bounds.width;
@@ -115,9 +137,10 @@ class FloatingDelaunayPolygons{
 	//--------------------------------- onFrame
 	onFrame(event){
 		var time = new Date().getTime();
+		var delay = this.is_mobile ? this.CREATE_POLYGON_DELAY_MOBILE : this.CREATE_POLYGON_DELAY;
 
 		if( !this.last_generate_polygon_time ||
-			(time - this.last_generate_polygon_time) >= this.CREATE_POLYGON_DELAY ) {
+			(time - this.last_generate_polygon_time) >= delay ) {
 			this.generatePolygon();
 			this.last_generate_polygon_time = time;
 		}
@@ -132,11 +155,14 @@ class FloatingDelaunayPolygons{
 		// if available,
 		// grab the  polygon from the 
 		// polygon pool
-		if(this.polygon_pool.length > 0) {
-			polygon = this.polygon_pool.pop();
-		}
-		// otherwise create a new one
-		else polygon = this.createPolygon();
+		// if(this.polygon_pool.length > 0) {
+		// 	console.log("POP --- this.polygon_pool.length = " + this.polygon_pool.length);
+		// 	polygon = this.polygon_pool.pop();
+		// }
+		// // otherwise create a new one
+		// else polygon = this.createPolygon();
+
+		polygon = this.createPolygon();
 
 		//detremine start & end pts
 		var end_pt = {
@@ -172,7 +198,7 @@ class FloatingDelaunayPolygons{
 	createPolygon(){
 		//create polygon at psuedorandom 
 		//point below the fold 
-		var x = Math.round(Math.random()*this.paperScope.view.bounds.width);
+		var x = 100 + Math.round(Math.random()*this.paperScope.view.bounds.width);
 		var y = this.paperScope.view.bounds.height + (this.size_in_px + Math.random()*this.size_in_px);  
 		
 		return this.createPolygonAroundPoint(x, y);
@@ -294,13 +320,16 @@ class FloatingDelaunayPolygons{
 			// can attempt translate to see 
 			// if less expensive
 			// set current values for x & y
-			polygon_info.polygon.position = new this.paperScope.Point(to_x,to_y);
-			polygon_info.polygon.rotate(1);			
+			polygon_info.polygon.bounds.x = to_x;
+			polygon_info.polygon.bounds.y = to_y;
+			//polygon_info.polygon.rotate(1);			
 
 			// if this polygon has finshed its
 			// animation remove it from the array
 			// reset it and add it to the polygon_pool
-			if(time > polygon_info.duration) {
+			// can clear if off stage or 
+			if( to_y < -polygon_info.polygon.bounds.height ||
+				time > polygon_info.duration ) {
 				//reomve from the animating array
 				this.animating_polygons.splice(i,1);
 				this.resetPolygon(polygon_info);
@@ -319,29 +348,30 @@ class FloatingDelaunayPolygons{
 
 	//--------------------------------- resetPolygon
     resetPolygon(polygon_info){
-    	//move back down under the fold
-    	var polygon = polygon_info.polygon;
-    	var x = Math.round(Math.random()*this.paperScope.view.bounds.width);
-		var y = this.paperScope.view.bounds.height + (this.size_in_px + Math.random()*this.size_in_px); 
-
-    	polygon.position = new this.paperScope.Point(x, y);
-
-    	//push into the polygon_pool
-    	this.polygon_pool.push(polygon);
+	  polygon_info.polygon.removeChildren();
+	  polygon_info.polygon.remove();
     }
 
 	//--------------------------------- reset
     reset(){
-        var self = this;
-        if(this.raster) this.raster.onLoad = null;
-        this.paperScope.project.activeLayer.removeChildren();
+    	this.paperScope.activate();
 
         this.initVars();
-        this.loadNextImage();
     }
+
     //--------------------------------- clear
     clear(){
-    	this.reset();
+    	this.paperScope.view.onFrame = null;
+    	this.paperScope.view.onResize = null;
+    	if(this.raster) this.raster.onLoad = null;
+    	//keep the raster here and just clear
+    	//the polygons
+    	for(var i=0;i<this.animating_polygons.length;i++){
+    		this.animating_polygons[i].polygon.removeChildren();
+    		this.animating_polygons[i].polygon.remove();
+    	}
+    	this.animating_polygons = [];
+    	this.paperScope.view.update();
     }
 
 }
