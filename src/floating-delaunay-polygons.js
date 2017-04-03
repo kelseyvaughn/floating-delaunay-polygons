@@ -152,16 +152,6 @@ class FloatingDelaunayPolygons{
 	generatePolygon(){
 		var polygon;
 
-		// if available,
-		// grab the  polygon from the 
-		// polygon pool
-		// if(this.polygon_pool.length > 0) {
-		// 	console.log("POP --- this.polygon_pool.length = " + this.polygon_pool.length);
-		// 	polygon = this.polygon_pool.pop();
-		// }
-		// // otherwise create a new one
-		// else polygon = this.createPolygon();
-
 		polygon = this.createPolygon();
 
 		//detremine start & end pts
